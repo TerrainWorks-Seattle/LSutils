@@ -5,8 +5,8 @@
 \title{Success Rate Curve}
 \usage{
 success_rate_curve(
-  landslides,
-  dem_list,
+  obs,
+  modeled,
   plot = TRUE,
   prob_col = "prob.pos",
   bins = NULL,
@@ -14,15 +14,15 @@ success_rate_curve(
 )
 }
 \arguments{
-\item{landslides}{A data frame of every landslide initiation point, with the predicted probability column.}
-
-\item{dem_list}{A list of .csv files with predicted probabilities for each DEM.}
-
 \item{plot}{Whether to produce a default plot of the success rate curve and the modeled probability proportions.}
 
 \item{prob_col}{The name of the predicted probability column. Default is "prob.pos"}
 
 \item{bins}{}
+
+\item{landslides}{A data frame of every landslide initiation point, with the predicted probability column.}
+
+\item{dem_list}{A list of .csv files with predicted probabilities for each DEM.}
 }
 \value{
 A data frame with the success rate curve and the modeled probability curve.

@@ -5,26 +5,29 @@
 \title{Predict and save}
 \usage{
 predict_and_save(
-  dir_in,
-  file_out,
   model,
+  files_in,
+  file_out,
   ...,
+  mask_range = NULL,
   scale_vals = NULL,
+  ln_pca = TRUE,
   transform = function(x) x,
-  output = "tif",
-  write_covars = TRUE
+  file_type = "tif",
+  write_covars = TRUE,
+  quiet = FALSE
 )
 }
 \arguments{
-\item{dir_in}{A directory which contains the necessary elevation derivative files for prediction.}
+\item{model}{A trained model. Must have function $predict_newdata and $state$train_task$feature_names. These are both provided by most mlr3 learners.}
 
 \item{file_out}{The name of the csv file to write results.}
-
-\item{model}{A trained model. Must have function $predict_newdata and $state$train_task$feature_names. These are both provided by most mlr3 learners.}
 
 \item{scale_vals}{The centering and scaling values used in training the model. The same values should be used when predicting data. The function expects a tibble with one column per feature and two values per feature. For example, \code{tibble(gradient = c(center_value, scale_value), mean_curv = c(center_value, scale_value))}.}
 
 \item{transform}{A function that calculates any transformed columns needed for the model. For example, this package includes a function called "make_quadratic_features" which calculateds squared and interaction terms for all numeric features.}
+
+\item{dir_in}{A directory which contains the necessary elevation derivative files for prediction.}
 }
 \value{
 A logical value.

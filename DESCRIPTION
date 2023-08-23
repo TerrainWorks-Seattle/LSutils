@@ -1,15 +1,31 @@
 Package: LSutils
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Type: Package
+Title: Landslide susceptibility analysis tools
+Version: 0.1.0
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    c(
+      person("Dan", "Miller", email = "danmiller.esi@gmail.com", role = "cre"),
+      person("Helen", "Miller", email = "helenthehuman@gmail.com", role = "aut"),
+      person("Tate", "Brasel", role = "aut"),
+      person("Julia", "Lober", email = "julia.lober@outlook.com", role = "aut")
+    )
+Description: TerrawinWorks code for landslide susceptibility analyses. This package includes key functions for sampling negative data points, using models to predict multiple DEMs, and assessing models using a couple of proportion-based strategies. 
+License: use_mit_license()
 Encoding: UTF-8
+LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
+Imports: 
+  terra (>= 1.5),
+  tibble,
+  dplyr,
+  purrr,
+  tictoc,
+  data.table
 Suggests: 
-    testthat (>= 3.0.0)
+  knitr,
+  testthat (>= 3.0.0),
+  rmarkdown,
+  mlr3
 Config/testthat/edition: 3
+VignetteBuilder: knitr

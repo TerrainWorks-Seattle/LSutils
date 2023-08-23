@@ -4,7 +4,7 @@
 \alias{predict_multiple_dems}
 \title{Predict multiple DEMs}
 \usage{
-predict_multiple_dems(model, pred_dir, basin_list, ..., out_dir = NULL)
+predict_multiple_dems(model, files_in, output_dir, out_label, ...)
 }
 \arguments{
 \item{model}{A trained model to be used for prediction. Must have function $predict_newdata and $state$train_task$feature_names, as provided by mlr3 models.}
