@@ -82,22 +82,24 @@ pred_rast <- lapply(t(preds), terra::rast)
 pred_tbl <- lapply(lapply(pred_rast, as.data.frame, xy = TRUE), as_tibble)
 toc()
 ```
-There is a success_rate_curve function that allows 
+There is a \code{success_rate_curve} function that calculates cumulative proportions of observed and modeled landslides, given a data frame of the predicted probabilities of observed landslides and a list of data frames containing modeled probabilities. 
+
+An automatic plot is generated showing modeled and observed success rate curves, unless \code{plot = FALSE}. 
 
 ```{r}
 s <- success_rate_curve(obs = train_probs, 
-                        modeled = pred_tbl,
-                        quiet = TRUE,
-                        plot = TRUE)
+                        modeled = pred_tbl)
 s
 ```
+
+To help understand the success rate curve, we can add a color mapping that corresponds to the probability that maps to each point. We see that the color change in the x direction is the same for both curves, while the color change in the y direction changes. 
+
+A single point on the success rate curve can be interpreted as the proportion of the study area that you would need to include to capture a certain proportion of the landslides. For example, the point (0.1, 0.25) would indicate that 25% of the landslides occurred in the top 10% more landslide-prone areas. 
 
 ```{r}
 p <- ggplot(s) +
     geom_point(mapping = aes(x = area_prop, y = modeled_prop, color = prob),
               size = 2) +
-    # geom_point(mapping = aes(x = area_prop, y = observed_prop),
-    #            color = "red", size = 1) +
     geom_line(mapping = aes(x = area_prop, y = observed_prop, color = prob),
               size = 2) +
     labs(title = "Success rate curve",
@@ -107,15 +109,18 @@ p <- ggplot(s) +
     scale_color_continuous(name = "Probability", type = "viridis")
 plot(p)
 ```
+## Proportion error
 
+A good model will predict the same proportion of landslides as observed. A \code{calibration_bars()} function takes the result from the success rate curve function and calculates the difference of the observed proportion of landslides in 10% bins from what we expect (which should be 10%). 
 
-This function automatically plots the success rate curve with gray lines which represent each individual DEM (it can be turned off by changing the `plot` argument to false). It also returns a data frame with the proportions of observed and modeled landslides at each probability, along with the proportion of total area at each probability. 
-With this information, we can plot the observed landslide curve against the modeled landslide success rate curve. 
+The function produces the plot below, with the proportion of observed landslides found in each bin, along with a 10% reference line. 
 
 ```{r}
 bars <- calibration_bars(s,
                          plot = TRUE)
 ```
+
+We can also plot this as the error, or difference between that line. Here, we see that the model is over-predicting the lower modeled probabilities and under-predicting the higher modeled probabilities. 
 
 ```{r}
 p <- ggplot(bars) +
@@ -126,6 +131,8 @@ p <- ggplot(bars) +
 
 plot(p)
 ```
+This also leads us to our single-valued measure calibration error, which is the sum of all the differences. 
+
 ```{r}
 calibration_error(bars)
 ```
