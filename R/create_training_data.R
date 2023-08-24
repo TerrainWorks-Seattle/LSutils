@@ -37,7 +37,7 @@ create_training_data_from_polygons <- function(polygons,
   extract_values(
     raster = predictors_raster,
     points = training_points,
-    xy = FALSE
+    xy = TRUE
   )
 }
 #------------------------------------------------------------------------------------------
@@ -93,7 +93,7 @@ create_training_data_from_points <- function(positive_points,
     points = training_points,
     extraction_method = extraction_method,
     extraction_layer = extraction_layer,
-    xy = FALSE
+    xy = TRUE
   )
 }
 
@@ -112,7 +112,7 @@ create_training_data_from_points <- function(positive_points,
 #' class; that is landslide initiation points
 #' @param predictors_raster SpatRaster with a layer for each predictor variable
 #' @param pos_buffer The radius in meters around a positive point that is
-#' considered within the landslide initiation zone; negative sample points 
+#' considered within the landslide initiation zone; negative sample points
 #' are excluded from within this buffer
 #' @param neg_buffer The radius around a positive point within which we are
 #' confident that no landslides were observed; negative (nonlandslide) points
@@ -260,7 +260,7 @@ create_training_points_from_polygons <- function(polygons,
 #' @return SpatVector with positive and negative points, with a field
 #' \code{"class"} indicating whether each point is positive or negative
 #' @export
-#' 
+#'
 sample_negative_points <- function(positive_points,
                                    analysis_region,
                                    buffer = TRUE,
@@ -338,7 +338,7 @@ sample_negative_points <- function(positive_points,
 #'
 #' @return A SpatVector of buffers.
 #' @export
-#' 
+#'
 sample_points <- function(count,
                           region,
                           buffer = TRUE,
@@ -432,7 +432,7 @@ sample_points <- function(count,
 #' @return A dataframe of extracted raster values with an additional "class"
 #' column.
 #' @export
-#' 
+#'
 extract_values <- function(raster,
                           points,
                           extraction_method = "all",

@@ -16,6 +16,9 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(TerrainWorksUtils)
+library(terra)
+library(tidyterra)
+library(ggplot2)
 ```
 
 
@@ -36,30 +39,39 @@ the model.
 TerrainWorksUtils uses the package `terra` for working with spatial data. 
 
 ```{r}
-library(terra)
-
-data_path <- system.file("examples", package = "TerrainWorksUtils")
-elev <- rast(file.path(data_path, "elev_scottsburg.flt"))
-grad <- rast(file.path(data_path, "grad_15.tif"))
-plan <- rast(file.path(data_path, "plan_15.tif"))
-prof <- rast(file.path(data_path, "prof_15.tif"))
-dev <- rast(file.path(data_path, "dev_15.tif"))
-#pca <- rast(file.path(data_path, "pca_15m_48hr.tif"))
+#load the data
+data_path <- system.file("examples", package = "LSutils")
+elev <- rast(file.path(data_path, "elevation.flt"))
+gradient <- rast(file.path(data_path, "gradient.flt"))
+mean_curv <- rast(file.path(data_path, "mean_curv.flt"))
+pca <- rast(file.path(data_path, "pca_48.flt"))
 
 vars_raster <- c(
-  grad,
-  plan,
-  prof,
-  dev
-  #pca
+  gradient,
+  mean_curv,
+  pca
 )
 
 initiation_points <- terra::vect(file.path(data_path,"initiation_points.shp"))
 ```
 
-```{r}
-plot(elev)
-points(initiation_points)
+```{r, echo = FALSE, warning = FALSE, out.width= "75%", dpi = 300}
+# create hillshade effect
+slope <- terrain(elev, "slope", unit = "radians")
+aspect <- terrain(elev, "aspect", unit = "radians")
+hill <- shade(slope, aspect, 30, 270)
+
+#plot
+p <- ggplot() +
+  theme_minimal() +
+  geom_spatraster(data = hill, maxcell = Inf) +
+  scale_fill_gradientn(colors = hcl.colors(1000, "Grays"), na.value = NA) +
+  geom_spatvector(data = initiation_points, 
+                  mapping = aes(fill = 1),
+                  color = "red",
+                  size = 2) +
+  theme(legend.position = "none") 
+p
 ```
 
 To create training data, we need both initiation and non-initiation points. 
@@ -78,10 +90,14 @@ include cells which already contain reasonable values for landslides to occur.
 analysis_region_mask <- create_analysis_region_mask(
   vars_raster, 
   initiation_points, 
-  mask_vars = c("grad_15", "plan_15", "prof_15"), 
+  mask_vars = c("gradient", "mean_curv", "pca_48"), 
   expansion_factor = 1
 )
-plot(analysis_region_mask)
+ggplot() + 
+  theme_minimal() + 
+  geom_spatraster(data = analysis_region_mask) +
+  scale_fill_gradientn(colors = c("lightblue"), na.value = NA) +
+  theme(legend.position = "none")
 ```
 
 Now that we have specified our analysis region, we can create our training 
@@ -98,13 +114,31 @@ training_points <- extract_values(
   extraction_method = "centroid", 
   return_type = "points"
 )
-plot(elev)
-points(training_points, col = ifelse(training_points$class == "positive", 
-                                    "black", 
-                                    "red")
-         )
 ```
 
+```{r}
+p <- ggplot() +
+  theme_minimal() +
+  geom_spatraster(data = hill) +
+  scale_fill_gradientn(colors = pal_greys, na.value = NA) +
+  geom_spatvector(data = training_points[training_points$class == "positive"], 
+                  mapping = aes(fill = 1),
+                  color = "red",
+                  size = 2) +
+  geom_spatvector(data = training_points[training_points$class == "negative"], 
+                  mapping = aes(fill = 1),
+                  color = "black",
+                  size = 2) +
+  theme(legend.position = "none")
+p
+```
 
+There are also functions included which simpify the process of creating training data into a single function call. Here, we get a data frame with the positive points, negative points, and the covariates
 
+```{r}
+create_training_data_with_buffer(positive_points = initiation_points,
+  predictors_raster = vars_raster,
+  analysis_region_mask = analysis_region_mask,
+  rseed = 1)
+```
 
